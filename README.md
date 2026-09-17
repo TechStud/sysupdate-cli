@@ -23,7 +23,7 @@ A clean, modern, and interactive Bash utility for Debian and Ubuntu system packa
 
 1. **Clone the repository**:
    ```bash
-   git clone [https://github.com/TechStud/sysupdate-cli.git](https://github.com/TechStud/sysupdate-cli.git)
+   git clone https://github.com/TechStud/sysupdate-cli.git
    cd sysupdate-cli
 
 2. Make the script executable:
