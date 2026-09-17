@@ -24,13 +24,18 @@ A clean, modern, and interactive Bash utility for Debian and Ubuntu system packa
 1. **Clone the repository**:
    ```bash
    git clone https://github.com/TechStud/sysupdate-cli.git
-   cd sysupdate-cli
+   ```
 
 2. Make the script executable:
-   `chmod +x sysupdates.sh`
+   ```bash
+   cd sysupdate-cli
+   chmod +x sysupdates.sh
+   ```
 
-3. (Optional) Symlink to system PATH:
-   `sudo ln -s "$(pwd)/sysupdates.sh" /usr/local/bin/sysupdate`
+4. (Optional) Symlink to system PATH:
+   ```bash
+   sudo ln -s "$(pwd)/sysupdates.sh" /usr/local/bin/sysupdate
+   ```
 
 ---
 
