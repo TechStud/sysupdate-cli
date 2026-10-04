@@ -10,6 +10,7 @@ A clean, modern, and interactive Bash utility for Debian and Ubuntu system packa
 
 ## ✨ Features
 
+* **Privilege Elevation Check**: Automatically checks for elevated permissions (sudo). Will prompt the user otherwise.
 * **Clean Registry Summaries**: Aggregates sync operations into simple domain counts and flags which repositories actually fetched updates (`Get`).
 * **Distro Suffix Trimming**: Strips repetitive release suffixes (e.g., `~ubuntu.24.04~noble`) to display clean version comparisons side-by-side.
 * **Troubleshooting Mode (`-v`)**: Pass `--verbose` to restore full, color-coded, live `apt` terminal streams whenever diagnosis is needed.
@@ -41,17 +42,44 @@ A clean, modern, and interactive Bash utility for Debian and Ubuntu system packa
 
 ## 📖 Usage
 
-Run using sudo:
+If you created the Symlink, run from any path:
 
 ``` bash
 # Run interactive upgrade sequence
-sudo ./sysupdates.sh
+sysupdate
 
 # Run report mode (display available updates without upgrading)
-sudo ./sysupdates.sh -r
+sysupdate -r
 
 # Run with verbose output (streams full apt-get stdout/stderr)
-sudo ./sysupdates.sh -v
+sysupdate -v
+```
+
+Without Symlink... Run directly:
+
+``` bash
+# Run interactive upgrade sequence
+/path/to/sysupdate-cli/sysupdates.sh
+
+# Run report mode (display available updates without upgrading)
+/path/to/sysupdate-cli/sysupdates.sh -r
+
+# Run with verbose output (streams full apt-get stdout/stderr)
+/path/to/sysupdate-cli/sysupdates.sh -v
+```
+
+### Automated Privilege Escalation Check
+
+```
+┌──[ PRIVILEGE NOTICE ]──────────────────────────────────────────╮
+│ This script requires elevated permissions (sudo) to query and  
+│ update system package registries using 'apt'.                  
+└────────────────────────────────────────────────────────────────╯
+ Proceed with sudo elevation? [Y/n]: Y
+ ✔ Relaunching with sudo privileges...
+
+[sudo] password for <username>: 
+
 ```
 
 ### Options
