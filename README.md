@@ -1,6 +1,8 @@
 # 🚀 sysupdate-cli
 
-A clean, modern, and interactive Bash utility for Debian and Ubuntu system package updates. It replaces standard `apt` output noise with an organized UI, clean version comparisons, repository sync metrics, and automated logging.
+Making Linux system maintenance effortless by turning routine updates into a simple, transparent process that puts you in control of keeping your systems clean, secure, and up to date.
+
+This is a clean, modern, feature-enhanced Bash wrapper for Debian/Ubuntu's APT package-management tools, providing an interactive, logged system-update workflow with upgrade previews, user confirmation, automated cleanup, and reboot detection.
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-Ubuntu%20%7C%20Debian-orange.svg)
