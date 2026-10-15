@@ -145,21 +145,23 @@ if [ "$EUID" -ne 0 ]; then
         echo -ne "${YELLOW}│${NC} ${CYAN}Proceed with sudo elevation? [y/N]: ${NC}"
         read -r elevate_confirm || true
         elevate_confirm="${elevate_confirm:-n}"
-        echo -e "${YELLOW}└───${NC}"
 
         if [[ ! "$elevate_confirm" =~ ^[yY](es)?$ ]]; then
-            echo -e "${NC}\n ${RED}✖ Operation Canceled! Elevated Privileges (sudo) are Required in order to continue.${NC}\n"
+            echo -e "${YELLOW}│${NC} ${RED}✖ Operation Canceled!!${NC}\n"
+            echo -e "${YELLOW}│${NC}   Elevated Privileges (sudo) are Required in order to continue.${NC}\n"
+            echo -e "${YELLOW}└───${NC}"
             log_event "SUDO_REQUESTED" "user=${USER} method=prompt result=cancelled"
             log_event "SESSION_END" "=================================================================="
             exit 1
         fi
-        echo -e " ${GREEN}✔ ${NC}${YELLOW}Requesting authentication...${NC}\n"
+        echo -e "${YELLOW}│${NC} ${GREEN}✔ ${NC}${YELLOW}Requesting authentication...${NC}\n"
     fi
 
     if sudo TERM="$TERM" ELEVATED=1 ORIG_USER="$USER" ELEVATION_METHOD="$ELEVATION_METHOD" "$SCRIPT_PATH" "$@"; then   
         exit 0
     else
-        echo -e "${NC}\n ${RED}✖ Elevated Privileges (sudo) are Required in order to continue. Exiting...${NC}\n"
+        echo -e "${YELLOW}│${NC} ${RED}✖ Elevated Privileges (sudo) are Required in order to continue. Exiting...${NC}\n"
+        echo -e "${YELLOW}└───${NC}"
         log_event "SUDO_REQUESTED" "user=${USER} method=${ELEVATION_METHOD} result=failed"
         log_event "SESSION_END  " "=================================================================="
         exit 1
@@ -168,7 +170,8 @@ fi
 
 if [ -n "${ELEVATED:-}" ]; then
     LOG_USER="${ORIG_USER:-root}"
-    echo -e " ${GREEN}✔ Privilege elevation successful.${NC}\n"
+    echo -e "${YELLOW}│${NC} ${GREEN}✔ Privilege elevation successful.${NC}\n"
+    echo -e "${YELLOW}└───${NC}"
     log_event "SUDO_REQUESTED" "user=${LOG_USER} method=${ELEVATION_METHOD:-cached} result=success"
 fi
 
