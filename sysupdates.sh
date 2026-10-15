@@ -107,13 +107,13 @@ if [ "$EUID" -ne 0 ]; then
     log_event "SESSION_START" "=================================================================="
     log_event "ENVIRONMENT" "hostname=${HOSTNAME} user=${USER} distro=${DISTRO_NAME} kernel=${KERNEL} last_run=${LAST_LOG}"
     echo ""
-    echo -e "${NC}${CYAN}┌──[ sysupdate-cli ]───────────────────────────────────────┐${NC}"
-    echo -e "${NC}${CYAN}|${NC} ${DIM}Makes routine Linux system maintenance effortless, by turning${NC}"
-    echo -e "${NC}${CYAN}|${NC}   ${DIM}complicated updates into a simple, transparent process that${NC}"
-    echo -e "${NC}${CYAN}|${NC}   ${DIM}puts users in control of keeping their systems clean, secure,${NC}"
-    echo -e "${NC}${CYAN}|${NC}   ${DIM}and up to date.${NC}"
-    echo -e "${NC}${CYAN}│${NC}  ${DIM}A modern take on the boring apt update && apt upgrade process${NC}"
-    echo -e "${NC}${CYAN}├$(printf '─%.0s' {1..64})┤${NC}\n"
+    echo -e "${NC}${CYAN}┌──[ sysupdate-cli ]─────────────────────────────────────────────┐${NC}"
+    echo -e "${NC}${CYAN}│${NC} ${DIM}Making routine Linux system maintenance effortless, by turning${NC}"
+    echo -e "${NC}${CYAN}│${NC}   ${DIM}complicated updates/upgrades into a simple, transparent process${NC}"
+    echo -e "${NC}${CYAN}│${NC}   ${DIM}that puts you in control of keeping your systems clean, secure,${NC}"
+    echo -e "${NC}${CYAN}│${NC}   ${DIM}and up to date.${NC}"
+    echo -e "${NC}${CYAN}└$(printf '─%.0s' {1..64})┘${NC}\n"
+    echo -e "${NC}${CYAN}┌──[ ENVIRONMENT ]───────────────────────────────────────────────┐${NC}"
     echo -e "${NC}${CYAN}│${NC}  ${GREEN}●${NC} Distro:    ${DISTRO_NAME}${NC}"
     echo -e "${NC}${CYAN}│${NC}  ${GREEN}●${NC} Kernel:    ${KERNEL}${NC}"
     echo -e "${NC}${CYAN}│${NC}  ${GREEN}●${NC} Host:      ${HOSTNAME}${NC}"
@@ -129,21 +129,23 @@ if [ "$EUID" -ne 0 ]; then
     fi
     echo -e "${NC}${CYAN}└$(printf '─%.0s' {1..64})┘${NC}\n"
     echo -e "${NC}"
-    echo -e "${YELLOW}┌──[ PRIVILEGE NOTICE ]──────────────────────────────────────────┐${NC}"
+    echo -e "${YELLOW}┌──[ PRIVILEGE NOTICE ]$(printf '─%.0s' {1..42})┐${NC}"
     echo -e "${YELLOW}│${NC} This script requires elevated permissions (sudo) to query and  "
     echo -e "${YELLOW}│${NC} update system package registries using 'apt'.                  "
-    echo -e "${YELLOW}└────────────────────────────────────────────────────────────────┘${NC}"
 
     # Smart Detection: Check if user has passwordless sudo or a cached session
     if $SUDO_CACHED; then
         ELEVATION_METHOD="cached"
+        echo -e "${YELLOW}└$(printf '─%.0s' {1..64})┘${NC}"
         echo -e " ${GREEN}✔ Active sudo capabilities detected. Proceeding...${NC}\n"
     else
         # Fallback Strategy: Prompt when elevation isn't actively cached
         ELEVATION_METHOD="prompt"
-        echo -ne " ${CYAN}Proceed with sudo elevation? [y/N]: ${NC}"
+        echo -e "${YELLOW}├$(printf '─%.0s' {1..64})┘${NC}"
+        echo -ne "${YELLOW}│${NC} ${CYAN}Proceed with sudo elevation? [y/N]: ${NC}"
         read -r elevate_confirm || true
         elevate_confirm="${elevate_confirm:-n}"
+        echo -e "${YELLOW}└───${NC}"
 
         if [[ ! "$elevate_confirm" =~ ^[yY](es)?$ ]]; then
             echo -e "${NC}\n ${RED}✖ Operation Canceled! Elevated Privileges (sudo) are Required in order to continue.${NC}\n"
@@ -288,11 +290,11 @@ if echo "$raw_apt_output" | grep -qE "$reboot_packages_pattern"; then
     predict_reboot=true
 fi
 
-echo -e "${MAGENTA}┌──[ ACTION REQUIRED ]───────────────────────────────────────────┐${NC}"
+echo -e "${MAGENTA}┌──[ ACTION REQUIRED ]$(printf '─%.0s' {1..43})┐${NC}"
 if [ "$predict_reboot" = true ]; then
     echo -e "${MAGENTA}│${NC} ${YELLOW}⚠️  Note: This update includes core components that may${NC}"
     echo -e "${MAGENTA}│${NC} ${YELLOW}           require a system reboot once applied.${NC}"
-    echo -e "${MAGENTA}├────────────────────────────────────────────────────────────────┘${NC}"
+    echo -e "${MAGENTA}├$(printf '─%.0s' {1..64})┘${NC}"
 fi
 echo -ne "${MAGENTA}│${NC} Apply these updates now? [y/N]: "
 read -r confirm || true
@@ -347,9 +349,9 @@ echo -e " ${GREEN}✔ Cleanup complete.${NC}"
 
 # Reboot Verification Check
 if [ -f "$REBOOT_REQUIRED_FILE" ]; then
-    echo -e "${NC}\n${RED}┌──[ REBOOT REQUIRED ]───────────────────────────────────────────┐${NC}"
+    echo -e "${NC}\n${RED}┌──[ REBOOT REQUIRED ]$(printf '─%.0s' {1..43})┐${NC}"
     echo -e "${RED}│${NC} Core updates (Kernel or Snap components) require a system reboot.${NC}"
-    echo -e "${RED}└────────────────────────────────────────────────────────────────┘${NC}"
+    echo -e "${RED}└$(printf '─%.0s' {1..64})┘${NC}"
     echo -e " ${GREEN}✔ Log saved to: ${YELLOW}$LOG_FILE${NC}\n"
 
     echo -ne "${RED}Reboot system right now? [y/N]: ${NC}"
