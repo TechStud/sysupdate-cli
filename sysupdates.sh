@@ -73,9 +73,9 @@ log_event() {
 print_banner() {
     STEP_CURR=$((STEP_CURR + 1))
     local title="[$STEP_CURR/$TOTAL_STEPS] $1"
-    echo -e "${NC}\n${CYAN}┌$(printf '─%.0s' {1..60})┐${NC}"
+    echo -e "${NC}\n${CYAN}┌$(printf '─%.0s' {1..64})┐${NC}"
     echo -e "${NC}${CYAN}│${NC} ${BOLD}${title}${NC}"
-    echo -e "${NC}${CYAN}└$(printf '─%.0s' {1..60})┘${NC}"
+    echo -e "${NC}${CYAN}└$(printf '─%.0s' {1..64})┘${NC}"
 }
 
 # Helper: Command execution wrapped for quiet vs verbose execution
@@ -108,11 +108,12 @@ if [ "$EUID" -ne 0 ]; then
     log_event "ENVIRONMENT" "hostname=${HOSTNAME} user=${USER} distro=${DISTRO_NAME} kernel=${KERNEL} last_run=${LAST_LOG}"
     echo ""
     echo -e "${NC}${CYAN}┌──[ sysupdate-cli ]─────────────────────────────────────────────┐${NC}"
-    echo -e "${NC}${CYAN}│${NC} ${DIM}Making routine Linux system maintenance effortless, by turning${NC}"
-    echo -e "${NC}${CYAN}│${NC}   ${DIM}complicated updates/upgrades into a simple, transparent ${NC}"
-    echo -e "${NC}${CYAN}│${NC}   ${DIM}process that puts you in control of keeping your systems ${NC}"
-    echo -e "${NC}${CYAN}│${NC}   ${DIM}clean, secure, and up to date.${NC}"
-    echo -e "${NC}${CYAN}└$(printf '─%.0s' {1..64})┘${NC}\n"
+    echo -e "${NC}${CYAN}│${DIM} Making routine Linux system maintenance effortless, by turning${NC}"
+    echo -e "${NC}${CYAN}│${DIM}   complicated updates/upgrades into a simple, transparent ${NC}"
+    echo -e "${NC}${CYAN}│${DIM}   process that puts you in control of keeping your systems ${NC}"
+    echo -e "${NC}${CYAN}│${DIM}   clean, secure, and up to date.${NC}"
+    echo -e "${NC}${CYAN}└$(printf '─%.0s' {1..64})┘${NC}"
+    echo -e "${NC}"
     echo -e "${NC}${CYAN}┌──[ ENVIRONMENT ]───────────────────────────────────────────────┐${NC}"
     echo -e "${NC}${CYAN}│${NC}  ${GREEN}●${NC} Distro:    ${DISTRO_NAME}${NC}"
     echo -e "${NC}${CYAN}│${NC}  ${GREEN}●${NC} Kernel:    ${KERNEL}${NC}"
@@ -127,7 +128,7 @@ if [ "$EUID" -ne 0 ]; then
     if [ -n "$LAST_LOG" ]; then
         echo -e "${NC}${CYAN}│${NC}  ${DIM}●${NC} Last Run:  ${LAST_LOG}${NC}"
     fi
-    echo -e "${NC}${CYAN}└$(printf '─%.0s' {1..64})┘${NC}\n"
+    echo -e "${NC}${CYAN}└$(printf '─%.0s' {1..64})┘${NC}"
     echo -e "${NC}"
     echo -e "${YELLOW}┌──[ PRIVILEGE NOTICE ]$(printf '─%.0s' {1..42})┐${NC}"
     echo -e "${YELLOW}│${NC} This script requires elevated permissions (sudo) to query and  "
@@ -137,7 +138,7 @@ if [ "$EUID" -ne 0 ]; then
     if $SUDO_CACHED; then
         ELEVATION_METHOD="cached"
         echo -e "${YELLOW}└$(printf '─%.0s' {1..64})┘${NC}"
-        echo -e " ${GREEN}✔ Active sudo capabilities detected. Proceeding...${NC}\n"
+        echo -e "${YELLOW}│${NC} ${GREEN}✔ Active sudo capabilities detected. Proceeding...${NC}"
     else
         # Fallback Strategy: Prompt when elevation isn't actively cached
         ELEVATION_METHOD="prompt"
@@ -147,20 +148,20 @@ if [ "$EUID" -ne 0 ]; then
         elevate_confirm="${elevate_confirm:-n}"
 
         if [[ ! "$elevate_confirm" =~ ^[yY](es)?$ ]]; then
-            echo -e "${YELLOW}│${NC} ${RED}✖ Operation Canceled!!${NC}\n"
-            echo -e "${YELLOW}│${NC}   Elevated Privileges (sudo) are Required in order to continue.${NC}\n"
+            echo -e "${YELLOW}│${NC} ${RED}✖ Operation Canceled!!${NC}"
+            echo -e "${YELLOW}│${NC}   Elevated Privileges (sudo) are Required in order to continue.${NC}"
             echo -e "${YELLOW}└───${NC}"
             log_event "SUDO_REQUESTED" "user=${USER} method=prompt result=cancelled"
             log_event "SESSION_END" "=================================================================="
             exit 1
         fi
-        echo -e "${YELLOW}│${NC} ${GREEN}✔ ${NC}${YELLOW}Requesting authentication...${NC}\n"
+        echo -e "${YELLOW}│${NC} ${GREEN}✔ ${NC}${YELLOW}Requesting authentication...${NC}"
     fi
 
     if sudo TERM="$TERM" ELEVATED=1 ORIG_USER="$USER" ELEVATION_METHOD="$ELEVATION_METHOD" "$SCRIPT_PATH" "$@"; then   
         exit 0
     else
-        echo -e "${YELLOW}│${NC} ${RED}✖ Elevated Privileges (sudo) are Required in order to continue. Exiting...${NC}\n"
+        echo -e "${YELLOW}│${NC} ${RED}✖ Elevated Privileges (sudo) are Required in order to continue. Exiting...${NC}"
         echo -e "${YELLOW}└───${NC}"
         log_event "SUDO_REQUESTED" "user=${USER} method=${ELEVATION_METHOD} result=failed"
         log_event "SESSION_END  " "=================================================================="
@@ -170,7 +171,7 @@ fi
 
 if [ -n "${ELEVATED:-}" ]; then
     LOG_USER="${ORIG_USER:-root}"
-    echo -e "${YELLOW}│${NC} ${GREEN}✔ Privilege elevation successful.${NC}\n"
+    echo -e "${YELLOW}│${NC} ${GREEN}✔ Privilege elevation successful.${NC}"
     echo -e "${YELLOW}└───${NC}"
     log_event "SUDO_REQUESTED" "user=${LOG_USER} method=${ELEVATION_METHOD:-cached} result=success"
 fi
@@ -317,26 +318,49 @@ fi
 # Step 3: Apply Package Updates
 # ==============================================================================
 print_banner "Applying Package Updates"
-
 echo -e "  ${NC}${CYAN}➜ Upgrading system packages (including phased updates)...${NC}"
 
 APT_OPTS="-o APT::Get::Always-Include-Phased-Updates=true -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold"
-
 if [ "$VERBOSE" = true ]; then
-    apt-get dist-upgrade -y $APT_OPTS
-else
-    DEBIAN_FRONTEND=noninteractive apt-get dist-upgrade -y -qq $APT_OPTS > /dev/null 2>&1 || {
-        echo -e "  ${NC}${RED}✖ Package upgrade failed! Run with -v to inspect details.${NC}"
-        log_event "DIST_UPGRADE_FAILED"
+    DEBIAN_FRONTEND=noninteractive apt-get dist-upgrade -y $APT_OPTS
+    if [ $? -eq 0 ]; then
+        echo -e "    ${NC}${CYAN}↳${NC}${GREEN}✔ Upgrades complete.${NC}"
+    else
+        echo -e "    ${NC}${CYAN}↳${NC}${RED}✖ Package upgrade failed (exit $?).${NC}"
+        log_event "DIST_UPGRADE_FAILED" "exit_code=$?"
         log_event "SESSION_END  " "=================================================================="
         exit 1
-    }
-fi
+    fi
+else
+    APT_OUTPUT=$(DEBIAN_FRONTEND=noninteractive apt-get dist-upgrade -y -qq $APT_OPTS 2>&1)
+    APT_EXIT=$?
+    if [ $APT_EXIT -ne 0 ]; then
+        ERR_LINES=$(echo "$APT_OUTPUT" | grep -E '^(E:|dpkg: error)')
+        echo -e "    ${NC}${CYAN}↳${NC}${RED}✖ Package upgrade failed (exit $APT_EXIT)${NC}"
+        if [ -n "$ERR_LINES" ]; then
+            echo "$ERR_LINES" | head -5 | sed 's/^/      /'
+        else
+            echo -e "      ${NC}${CYAN}↳${NC} (no error lines captured; possible signal kill)${NC}"
+        fi
+        echo "      ${NC}${CYAN}↳${NC} ${BOLD}Full details:${NC} /var/log/apt/term.log, /var/log/dpkg.log${NC}"
+        log_event "DIST_UPGRADE_FAILED" "exit_code=$APT_EXIT"
+        if [ -n "$ERR_LINES" ]; then
+            while IFS= read -r line; do
+                log_event "DIST_UPGRADE_ERR" "$line"
+            done <<< "$ERR_LINES"
+        else
+            log_event "DIST_UPGRADE_OUTPUT" "$(echo "$APT_OUTPUT" | tail -10)"
+        fi
+        log_event "SESSION_END  " "=================================================================="
+        exit 1
+    fi
+    echo -e "    ${NC}${CYAN}↳${NC}${GREEN}✔ Upgrades complete.${NC}"
+fi   
 
-echo -e "${NC}\n${CYAN}➜ Cleaning up obsolete cached packages...${NC}"
+echo -e "  ${NC}${CYAN}➜ Cleaning up obsolete cached packages...${NC}"
 run_cmd apt-get autoremove -y
 run_cmd apt-get clean
-echo -e " ${GREEN}✔ Cleanup complete.${NC}"
+echo -e "    ${NC}${CYAN}↳${NC}${GREEN}✔ Cleanup complete.${NC}"
 
 # Write Transaction Log
 {
@@ -354,24 +378,23 @@ echo -e " ${GREEN}✔ Cleanup complete.${NC}"
 if [ -f "$REBOOT_REQUIRED_FILE" ]; then
     echo -e "${NC}\n${RED}┌──[ REBOOT REQUIRED ]$(printf '─%.0s' {1..43})┐${NC}"
     echo -e "${RED}│${NC} Core updates (Kernel or Snap components) require a system reboot.${NC}"
-    echo -e "${RED}└$(printf '─%.0s' {1..64})┘${NC}"
-    echo -e " ${GREEN}✔ Log saved to: ${YELLOW}$LOG_FILE${NC}\n"
-
-    echo -ne "${RED}Reboot system right now? [y/N]: ${NC}"
+    echo -e "${RED}├$(printf '─%.0s' {1..64})┘${NC}"
+    echo -e "${RED}│${NC} ${GREEN}✔ Log saved to: ${YELLOW}$LOG_FILE${NC}\n"
+    echo -ne "${RED}│ Reboot system right now? [y/N]: ${NC}"
     read -r reboot_confirm || true
     reboot_confirm="${reboot_confirm:-n}"
-
     if [[ "$reboot_confirm" =~ ^[yY](es)?$ ]]; then
         echo -e "${NC}${GREEN}Restarting machine...${NC}"
         log_event "REBOOT" "action=${reboot_confirm} result=rebooting"
         reboot
     else
-        echo -e "${NC}${YELLOW}Reboot skipped. Please reboot manually when convenient.${NC}\n"
+        echo -e "${RED}│${NC} ${YELLOW}Reboot skipped. Please reboot manually when convenient.${NC}\n"
         log_event "REBOOT" "action=${reboot_confirm} result=skipped"
     fi
+    echo -e "${RED}└───${NC}"
 else
-    echo -e "${NC}\n${GREEN}✔ System updates applied successfully! No reboot required.${NC}"
-    log_event "REBOOT" "result=not_required"
+    echo -e "${NC} ${GREEN}✔ System updates applied successfully! No reboot required.${NC}"
+    log_event "REBOOT" "action=none result=not_required"
     echo -e "${NC} ${GREEN}✔ Log saved to: ${YELLOW}$LOG_FILE${NC}\n"
 fi
 log_event "SESSION_END  " "=================================================================="
